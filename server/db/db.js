@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
+const Customer = require('../models/Customer.js');
 
 const connectDB = async () => {
   try {
