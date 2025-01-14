@@ -15,7 +15,7 @@ import {
   Select,
   InputNumber
 } from 'antd';
-import { LoadingOutlined, PlusOutlined, BankOutlined, ShopOutlined, UserOutlined, EnvironmentOutlined, PictureOutlined, SettingOutlined } from '@ant-design/icons';
+import { LoadingOutlined, PlusOutlined, BankOutlined, ShopOutlined, UserOutlined, EnvironmentOutlined, PictureOutlined, SettingOutlined, CheckCircleOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -26,6 +26,7 @@ export default function RegisterLaundry() {
   const [current, setCurrent] = useState(0);
   const [imageUrls, setImageUrls] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [accountValidated, setAccountValidated] = useState(null); // null=not checked, false=invalid, true=valid
 
   const steps = [
     { title: 'Laundry Details', icon: <ShopOutlined /> },
@@ -35,6 +36,21 @@ export default function RegisterLaundry() {
     { title: 'Facilities', icon: <SettingOutlined /> },
     { title: 'Bank Details', icon: <BankOutlined /> },
   ];
+
+  const validateBankAccount = async () => {
+    const accountNumber = form.getFieldValue(['bankDetails', 'accountNumber']);
+    const ifscCode = form.getFieldValue(['bankDetails', 'ifscCode']);
+    
+    if (!accountNumber || !ifscCode) {
+      message.error('Please enter account number and IFSC code');
+      return;
+    }
+  
+    setLoading(true);
+    // Placeholder for validation logic
+    // Will be implemented later
+    setLoading(false);
+  };
 
   const onFinish = async (values) => {
     try {
@@ -231,48 +247,68 @@ export default function RegisterLaundry() {
                 case 5:
                     return (
                         <>
-                        <Title level={4}>Bank Details</Title>
-                        <Form.Item
-                            label="Account Number"
-                            name={['bankDetails', 'accountNumber']}
-                            rules={[{ required: true, message: 'Please enter account number' }]}
-                        >
-                            <Input prefix={<BankOutlined />} placeholder="Enter account number" />
-                        </Form.Item>
-                        <Form.Item
-                            label="Re-enter Account Number"
-                            name={['bankDetails', 'confirmAccountNumber']}
-                            dependencies={[['bankDetails', 'accountNumber']]}
-                            rules={[
+                          <Title level={4}>Bank Details</Title>
+                          <div style={{ 
+                            padding: '24px',
+                            border: `2px solid ${accountValidated === null ? '#faad14' : accountValidated ? '#52c41a' : '#ff4d4f'}`,
+                            borderRadius: '8px',
+                            marginBottom: '24px',
+                            transition: 'all 0.3s ease'
+                          }}>
+                            <Form.Item
+                              label="Account Number"
+                              name={['bankDetails', 'accountNumber']}
+                              rules={[{ required: true, message: 'Please enter account number' }]}
+                            >
+                              <Input prefix={<BankOutlined />} placeholder="Enter account number" />
+                            </Form.Item>
+                            <Form.Item
+                              label="Re-enter Account Number"
+                              name={['bankDetails', 'confirmAccountNumber']}
+                              dependencies={[['bankDetails', 'accountNumber']]}
+                              rules={[
                                 { required: true, message: 'Please confirm account number' },
                                 ({ getFieldValue }) => ({
-                                    validator(_, value) {
-                                        if (!value || getFieldValue(['bankDetails', 'accountNumber']) === value) {
-                                            return Promise.resolve();
-                                        }
-                                        return Promise.reject(new Error('Account numbers do not match!'));
-                                    },
+                                  validator(_, value) {
+                                    if (!value || getFieldValue(['bankDetails', 'accountNumber']) === value) {
+                                      return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('Account numbers do not match!'));
+                                  },
                                 }),
-                            ]}
-                        >
-                            <Input prefix={<BankOutlined />} placeholder="Re-enter account number" />
-                        </Form.Item>
-                        <Form.Item
-                            label="IFSC Code"
-                            name={['bankDetails', 'ifscCode']}
-                            rules={[{ required: true, message: 'Please enter IFSC code' }]}
-                        >
-                            <Input prefix={<BankOutlined />} placeholder="Enter IFSC code" />
-                        </Form.Item>
-                        <Form.Item
-                            label="Account Type"
-                            name={['bankDetails', 'accountType']}
-                            rules={[{ required: true, message: 'Please enter account type' }]}
-                        >
-                            <Input prefix={<BankOutlined />} placeholder="Enter account type" />
-                        </Form.Item>
+                              ]}
+                            >
+                              <Input prefix={<BankOutlined />} placeholder="Re-enter account number" />
+                            </Form.Item>
+                            <Form.Item
+                              label="IFSC Code"
+                              name={['bankDetails', 'ifscCode']}
+                              rules={[{ required: true, message: 'Please enter IFSC code' }]}
+                            >
+                              <Input prefix={<BankOutlined />} placeholder="Enter IFSC code" />
+                            </Form.Item>
+                            <Form.Item
+                              label="Account Type"
+                              name={['bankDetails', 'accountType']}
+                              rules={[{ required: true, message: 'Please select account type' }]}
+                            >
+                              <Select placeholder="Select account type">
+                                <Select.Option value="savings">Savings</Select.Option>
+                                <Select.Option value="current">Current</Select.Option>
+                              </Select>
+                            </Form.Item>
+                            <Button 
+                              type="primary"
+                              onClick={validateBankAccount}
+                              loading={loading}
+                              icon={accountValidated ? <CheckCircleOutlined /> : null}
+                              style={{ width: '100%', marginTop: '12px' }}
+                            >
+                              Validate Bank Details
+                            </Button>
+                          </div>
                         </>
-                    );
+                      );
 
       // Add remaining cases for other steps...
     }
