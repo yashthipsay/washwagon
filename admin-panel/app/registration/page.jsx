@@ -31,6 +31,7 @@ export default function RegisterLaundry() {
   const [accountValidated, setAccountValidated] = useState(null); // null=not checked, false=invalid, true=valid
   const [validationType, setValidationType] = useState('bank'); // 'bank' or 'upi'
   const [mapModalOpen, setMapModalOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState('');
 
   const steps = [
     { title: 'Laundry Details', icon: <ShopOutlined /> },
@@ -306,6 +307,8 @@ const onFinish = async () => {
     const method = getFieldValue(['shopLocation', 'method']);
     if (method === 'autocomplete') {
       return (
+        <>
+
         <Form.Item
           label="Location"
           name={['shopLocation', 'address']}
@@ -313,19 +316,22 @@ const onFinish = async () => {
         >
           <Autocomplete
             apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
+            initialValue={form.getFieldValue(['shopLocation', 'address'])}
             onSelect={(item) => {
-              const { lat, lng } = item.geometry.location;
+              console.log('Autocomplete selected:', item);
               form.setFieldsValue({
                 shopLocation: {
                   address: item.description,
-                  lat,
-                  lon: lng,
+                  lat: item.geometry.location.lat,
+                  lon: item.geometry.location.lng,
                   method: 'autocomplete',
                 },
               });
+              console.log('Form values after autocomplete:', form.getFieldsValue());
             }}
           />
         </Form.Item>
+        </>
       );
     } else {
       return (
@@ -351,17 +357,22 @@ const onFinish = async () => {
             style={{ top: 10 }}
           >
             <div style={{ height: '100%', width: '100%' }}>
-              <OlaMap
-                apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
-                onLocationSelect={(coords) => {
-                  console.log('Selected location:', coords);
-                  form.setFieldsValue({
-                    shopLocation: {
-                      address: coords.address || '',
-                    },
-                  });
-                }}
-              />
+            <OlaMap
+  apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
+  onLocationSelect={(coords) => {
+    console.log('Selected location:', coords);
+    form.setFieldsValue({
+      shopLocation: {
+        address: coords.address || '',
+        lat: coords.lat,      // Add latitude
+        lon: coords.lon,      // Add longitude
+        method: 'map'
+      },
+    });
+    setMapModalOpen(false); // Close modal after selection
+  }}
+  onClose={() => setMapModalOpen(false)}
+/>
             </div>
           </Modal>
         </>

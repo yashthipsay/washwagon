@@ -4,7 +4,7 @@ import { Card, Button } from 'antd';
 import { OlaMaps } from '@/OlaMapsWebSDKNew';
 import dynamic from 'next/dynamic';
 
-const OlaMap = ({apiKey, onLocationSelect}) => {
+const OlaMap = ({apiKey, onLocationSelect, onClose}) => {
     const mapContainer = useRef(null);
     const markerRef = useRef(null);
     const [center, setCenter] = useState([72.8777, 19.0760]); // Default to Mumbai coordinates
@@ -86,6 +86,7 @@ const OlaMap = ({apiKey, onLocationSelect}) => {
     const address = place?.formatted_address || `Lat: ${lngLat.lat}, Lon: ${lngLat.lng}`;
     onLocationSelect({ lat: lngLat.lat, lon: lngLat.lng, address: address });
     console.log('Marker location saved:', lngLat);
+    onClose();  // Close the modal after saving the location
   };
 
       return (

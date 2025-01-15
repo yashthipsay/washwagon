@@ -8,8 +8,8 @@ const olamaps = new OlaMaps({
     apiKey: 'tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k'
 })
 
-const Autocomplete = ({apiKey, onSelect}) => {
-    const [inputValue, setInputValue] = useState('');
+const Autocomplete = ({apiKey, onSelect, initialValue = ''}) => {
+    const [inputValue, setInputValue] = useState(initialValue);
     const [suggestions, setSuggestions] = useState([]);
     const [location, setLocation] = useState({ lat: null, lon: null });
 
@@ -18,6 +18,12 @@ const Autocomplete = ({apiKey, onSelect}) => {
         .then((loc) => setLocation(loc))
         .catch((error) => console.error('Error getting location:', error));
     }, [])
+
+    useEffect(() => {
+      if (initialValue) {
+        setInputValue(initialValue);
+      }
+    }, [initialValue]);
 
     const handleInputChange = (e) => {
         setInputValue(e.target.value);
