@@ -17,7 +17,7 @@ import {
   Radio
 } from 'antd';
 import { LoadingOutlined, PlusOutlined, BankOutlined, ShopOutlined, UserOutlined, EnvironmentOutlined, PictureOutlined, SettingOutlined, CheckCircleOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
-
+import Autocomplete from '../components/olaMapsAutocomplete';
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 const { RangePicker } = TimePicker;
@@ -287,49 +287,32 @@ const onFinish = async () => {
       case 2:
         return (
           <>
-            <Title level={4}>Location Details</Title>
-            <Form.Item
-              label="Address Line 1"
-              name={['shopLocation', 'address1']}
-              rules={[{ required: true }]}
-            >
-              <Input placeholder="Enter street address" />
-            </Form.Item>
-            <Form.Item
-              label="Address Line 2"
-              name={['shopLocation', 'address2']}
-            >
-              <Input placeholder="Enter apartment, suite, etc." />
-            </Form.Item>
-            <Form.Item
-              label="Landmark"
-              name={['shopLocation', 'landmark']}
-            >
-              <Input placeholder="Enter nearby landmark" />
-            </Form.Item>
-            <Form.Item
-              label="Pincode"
-              name={['shopLocation', 'pincode']}
-              rules={[{ required: true, pattern: /^\d{6}$/, message: 'Please enter valid pincode' }]}
-            >
-              <Input placeholder="Enter pincode" />
-            </Form.Item>
-            <Form.Item label="Coordinates">
-              <Input.Group compact>
-                <Form.Item
-                  name={['shopLocation', 'lat']}
-                  rules={[{ required: false }]}
-                >
-                  <InputNumber placeholder="Latitude" style={{ width: '50%' }} />
-                </Form.Item>
-                <Form.Item
-                  name={['shopLocation', 'lon']}
-                  rules={[{ required: false }]}
-                >
-                  <InputNumber placeholder="Longitude" style={{ width: '50%' }} />
-                </Form.Item>
-              </Input.Group>
-            </Form.Item>
+  <Title level={4}>Location Details</Title>
+      <Form.Item
+        label="Laundry Address"
+        name={['shopLocation', 'address']}
+        rules={[{ required: true, message: 'Please enter an address' }]}
+      >
+        {/* 
+          Integrates Ola Maps Autocomplete. 
+          On selection, sets form fields: 
+           - shopLocation.address 
+           - shopLocation.lat 
+           - shopLocation.lon
+        */}
+        <Autocomplete 
+          apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
+          onSelect={(item) => {
+            form.setFieldsValue({
+              shopLocation: {
+                address: item.description,
+                lat: item.geometry.location.lat,
+                lon: item.geometry.location.lng,
+              },
+            });
+          }}
+        />
+      </Form.Item>
           </>
         );
   
