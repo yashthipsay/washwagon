@@ -14,7 +14,8 @@ import {
   message,
   Select,
   InputNumber,
-  Radio
+  Radio,
+  Modal
 } from 'antd';
 import { LoadingOutlined, PlusOutlined, BankOutlined, ShopOutlined, UserOutlined, EnvironmentOutlined, PictureOutlined, SettingOutlined, CheckCircleOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import Autocomplete from '../components/olaMapsAutocomplete';
@@ -29,6 +30,7 @@ export default function RegisterLaundry() {
   const [loading, setLoading] = useState(false);
   const [accountValidated, setAccountValidated] = useState(null); // null=not checked, false=invalid, true=valid
   const [validationType, setValidationType] = useState('bank'); // 'bank' or 'upi'
+  const [mapModalOpen, setMapModalOpen] = useState(false);
 
   const steps = [
     { title: 'Laundry Details', icon: <ShopOutlined /> },
@@ -286,64 +288,88 @@ const onFinish = async () => {
   
       case 2:
         return (
-<>
-      <Title level={4}>Location Details</Title>
-      {/* Let the Form handle the Radio.Group value */}
-      <Form.Item
-        label="Select Location Method"
-        name={['shopLocation', 'method']}
-        initialValue="autocomplete"
-      >
-        <Radio.Group>
-          <Radio.Button value="autocomplete">Search Address</Radio.Button>
-          <Radio.Button value="map">Pick on Map</Radio.Button>
-        </Radio.Group>
-      </Form.Item>
-
-      {/* Conditionally render based on the form value for method */}
-      <Form.Item noStyle shouldUpdate>
-        {({ getFieldValue }) => {
-          return (
+          <>
+            <Title level={4}>Location Details</Title>
             <Form.Item
-              label="Location"
-              name={['shopLocation', 'address']}
-              rules={[{ required: true, message: 'Please select a location' }]}
+              label="Select Location Method"
+              name={['shopLocation', 'method']}
+              initialValue="autocomplete"
             >
-              {getFieldValue(['shopLocation', 'method']) === 'autocomplete' ? (
-                <Autocomplete
-                  apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
-                  onSelect={(item) => {
-                    // Update location fields
-                    const { lat, lng } = item.geometry.location;
-                    form.setFieldsValue({
-                      shopLocation: {
-                        address: item.description,
-                        lat: lat,
-                        lon: lng,
-                        method: 'autocomplete',
-                      },
-                    });
-                  }}
-                />
-              ) : (
-                <OlaMap
-                  apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
-                  onLocationSelect={(coords) => {
-                    form.setFieldsValue({
-                      shopLocation: {
-                        lat: coords.lat,
-                        lon: coords.lon,
-                        method: 'map',
-                      },
-                    });
-                  }}
-                />
-              )}
+              <Radio.Group>
+                <Radio.Button value="autocomplete">Search Address</Radio.Button>
+                <Radio.Button value="map">Pick on Map</Radio.Button>
+              </Radio.Group>
             </Form.Item>
-          );
-        }}
-      </Form.Item>
-    </>
+
+            <Form.Item noStyle shouldUpdate>
+  {({ getFieldValue }) => {
+    const method = getFieldValue(['shopLocation', 'method']);
+    if (method === 'autocomplete') {
+      return (
+        <Form.Item
+          label="Location"
+          name={['shopLocation', 'address']}
+          rules={[{ required: true, message: 'Please select a location' }]}
+        >
+          <Autocomplete
+            apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
+            onSelect={(item) => {
+              const { lat, lng } = item.geometry.location;
+              form.setFieldsValue({
+                shopLocation: {
+                  address: item.description,
+                  lat,
+                  lon: lng,
+                  method: 'autocomplete',
+                },
+              });
+            }}
+          />
+        </Form.Item>
+      );
+    } else {
+      return (
+        <>
+          <Form.Item>
+            <Button type="primary" onClick={() => setMapModalOpen(true)}>
+              Open Map
+            </Button>
+          </Form.Item>
+          <Form.Item
+            name={['shopLocation', 'address']}
+            label="Location"
+            rules={[{ required: true, message: 'Please select a location' }]}
+          >
+            <Input readOnly placeholder="Coordinates will appear once saved" />
+          </Form.Item>
+          <Modal
+            title="Pick on Map"
+            open={mapModalOpen}
+            footer={null}
+            onCancel={() => setMapModalOpen(false)}
+            width="100%"
+            style={{ top: 10 }}
+          >
+            <div style={{ height: '100%', width: '100%' }}>
+              <OlaMap
+                apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
+                onLocationSelect={(coords) => {
+                  console.log('Selected location:', coords);
+                  form.setFieldsValue({
+                    shopLocation: {
+                      address: coords.address || '',
+                    },
+                  });
+                }}
+              />
+            </div>
+          </Modal>
+        </>
+      );
+    }
+  }}
+</Form.Item>
+          </>
         );
   
       case 3: 
