@@ -1,5 +1,5 @@
 'use client';
-
+import OlaMap from '../components/OlaMap';
 import React, { useState } from 'react';
 import { 
   Form, 
@@ -286,34 +286,64 @@ const onFinish = async () => {
   
       case 2:
         return (
-          <>
-  <Title level={4}>Location Details</Title>
+<>
+      <Title level={4}>Location Details</Title>
+      {/* Let the Form handle the Radio.Group value */}
       <Form.Item
-        label="Laundry Address"
-        name={['shopLocation', 'address']}
-        rules={[{ required: true, message: 'Please enter an address' }]}
+        label="Select Location Method"
+        name={['shopLocation', 'method']}
+        initialValue="autocomplete"
       >
-        {/* 
-          Integrates Ola Maps Autocomplete. 
-          On selection, sets form fields: 
-           - shopLocation.address 
-           - shopLocation.lat 
-           - shopLocation.lon
-        */}
-        <Autocomplete 
-          apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
-          onSelect={(item) => {
-            form.setFieldsValue({
-              shopLocation: {
-                address: item.description,
-                lat: item.geometry.location.lat,
-                lon: item.geometry.location.lng,
-              },
-            });
-          }}
-        />
+        <Radio.Group>
+          <Radio.Button value="autocomplete">Search Address</Radio.Button>
+          <Radio.Button value="map">Pick on Map</Radio.Button>
+        </Radio.Group>
       </Form.Item>
-          </>
+
+      {/* Conditionally render based on the form value for method */}
+      <Form.Item noStyle shouldUpdate>
+        {({ getFieldValue }) => {
+          return (
+            <Form.Item
+              label="Location"
+              name={['shopLocation', 'address']}
+              rules={[{ required: true, message: 'Please select a location' }]}
+            >
+              {getFieldValue(['shopLocation', 'method']) === 'autocomplete' ? (
+                <Autocomplete
+                  apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
+                  onSelect={(item) => {
+                    // Update location fields
+                    const { lat, lng } = item.geometry.location;
+                    form.setFieldsValue({
+                      shopLocation: {
+                        address: item.description,
+                        lat: lat,
+                        lon: lng,
+                        method: 'autocomplete',
+                      },
+                    });
+                  }}
+                />
+              ) : (
+                <OlaMap
+                  apiKey="tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k"
+                  onLocationSelect={(coords) => {
+                    form.setFieldsValue({
+                      shopLocation: {
+                        lat: coords.lat,
+                        lon: coords.lon,
+                        method: 'map',
+                      },
+                    });
+                  }}
+                />
+              )}
+            </Form.Item>
+          );
+        }}
+      </Form.Item>
+    </>
         );
   
       case 3: 
@@ -463,7 +493,7 @@ const onFinish = async () => {
           Register Your Laundry
         </Title>
         
-        <Steps current={current} items={steps} style={{ marginBottom: '24px' }} />
+        <Steps current={current} onChange={setCurrent} items={steps} style={{ marginBottom: '24px' }} />
         <Form.Provider
         onFormFinish={(name, { values }) => {
           console.log('Form values:', values); // You can combine values here if needed

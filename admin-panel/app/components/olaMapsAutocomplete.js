@@ -1,9 +1,12 @@
-import ('../../OlaMapsWebSDKNew').then((module) => {
-    const { OlaMaps } = module;
-});
+
 import { Card, Input, List } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { getCurrentLocation } from '../utils/getCurrentLocation';
+import { OlaMaps } from '@/OlaMapsWebSDKNew';
+
+const olamaps = new OlaMaps({
+    apiKey: 'tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k'
+})
 
 const Autocomplete = ({apiKey, onSelect}) => {
     const [inputValue, setInputValue] = useState('');
@@ -37,7 +40,7 @@ const Autocomplete = ({apiKey, onSelect}) => {
         if (!location.lat || !location.lon) return;
     
         const response = await fetch(
-          `https://api.olamaps.io/places/v1/autocomplete?input=${input}&api_key=tx0FO1vtsTuqyz45MEUIJiYDTFMJOPG9bWR3Yd4k`,
+          `https://api.olamaps.io/places/v1/autocomplete?location=${location.lat},${location.lon}&input=${input}&api_key=${apiKey}`,
           {
             headers: {
               'X-Request-Id': 'a623e8cd-bcd5-4d9a-beb3-ea7df3f5092e',
