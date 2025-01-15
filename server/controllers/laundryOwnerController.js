@@ -2,14 +2,16 @@ const LaundryOwner = require('../models/LaundryOwner');
 
 // Create a new laundry owner
 exports.createLaundryOwner = async (req, res) => {
-    try {
-      const laundryOwner = new LaundryOwner(req.body);
-      await laundryOwner.save();
-      res.status(201).send(laundryOwner);
-    } catch (err) {
-      res.status(400).send(err.message);
-    }
-  };
+  try {
+    console.log("Incoming Payload:", req.body); // Log payload
+    const laundryOwner = new LaundryOwner(req.body);
+    await laundryOwner.save();
+    res.status(201).send(laundryOwner);
+  } catch (err) {
+    console.error("Error creating laundry owner:", err); // Log error
+    res.status(400).send({ message: err.message });
+  }
+};
 
   // Get all laundry owners
 exports.getAllLaundryOwners = async (req, res) => {
