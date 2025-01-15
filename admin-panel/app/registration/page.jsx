@@ -369,7 +369,6 @@ const onFinish = async () => {
         method: 'map'
       },
     });
-    setMapModalOpen(false); // Close modal after selection
   }}
   onClose={() => setMapModalOpen(false)}
 />
