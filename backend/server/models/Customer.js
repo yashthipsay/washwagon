@@ -18,7 +18,7 @@ const CustomerSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-});
+}); 
 
 // Prevent overwriting the Customer model if it already exists
 const Customer = mongoose.models.Customer || mongoose.model('Customer', CustomerSchema);
