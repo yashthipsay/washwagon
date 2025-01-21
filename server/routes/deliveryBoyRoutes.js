@@ -1,12 +1,14 @@
-// /Users/karanpaigude/Desktop/projects/Washwagon/server/routes/deliveryBoyRoutes.js
 const express = require('express');
 const router = express.Router();
 const deliveryBoyController = require('../controllers/deliveryBoyController');
 
 // Route to create a new delivery boy
-router.post('/api/deliveryboys', deliveryBoyController.createDeliveryBoy); // POST method for creating a delivery boy
+router.post('/', deliveryBoyController.createDeliveryBoy); // POST method for creating a delivery boy
+
+router.post('/signup', deliveryBoyController.createDeliveryBoy); 
 
 // Route to get all delivery boys
-router.get('/api/deliveryboys', deliveryBoyController.getDeliveryBoys);    // GET method for fetching delivery boys
+router.get('/orders', deliveryBoyController.getDeliveryBoys);    // GET method for fetching delivery boys
+// router.put('/orderDetails', orderController.updateOrderDetails);
 
 module.exports = router;

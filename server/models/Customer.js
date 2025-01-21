@@ -20,4 +20,7 @@ const CustomerSchema = new mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('Customer', CustomerSchema);
+// Prevent overwriting the Customer model if it already exists
+const Customer = mongoose.models.Customer || mongoose.model('Customer', CustomerSchema);
+
+module.exports = Customer;
