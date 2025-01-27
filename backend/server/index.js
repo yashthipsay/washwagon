@@ -4,7 +4,7 @@ const cors = require('cors'); // Import CORS
 require('dotenv').config();
 const mongoose = require('mongoose');
 const laundryOwner = require('./routes/laundryOwner');
-const bnkVerification = require('./routes/bnkVerification');
+// const bnkVerification = require('./routes/bnkVerification');
 const customerRoutes = require('./routes/customerRoutes'); // Import the customerRoutes file
 const deliveryBoyRoutes = require('./routes/deliveryBoyRoutes'); // Import the deliveryBoyRoutes file
 const orderRoutes = require('./routes/orderDetailsRoutes');
@@ -32,7 +32,7 @@ mongoose
 
 // Define routes
 app.use('/api/laundryOwners', laundryOwner);
-app.use('/api/bank-verification', bnkVerification);
+// app.use('/api/bank-verification', bnkVerification);
 app.use('/api', require('./routes/orderDetailsRoutes'));
 app.use('/api/customers', customerRoutes); // For customer routes (signup should be here)
 app.use('/api/deliveryBoys', deliveryBoyRoutes); // For delivery routes

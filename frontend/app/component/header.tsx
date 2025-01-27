@@ -12,7 +12,7 @@ const Header = () => {
           <h1 className="text-white p-2 hover:bg-sky-700">About</h1></Link>
           <Link href='/services'>
           <h1 className="text-white p-2 hover:bg-sky-700">Services</h1></Link>
-          <Link href='/'>
+          <Link href='/contact'>
           <h1 className="text-white p-2 hover:bg-sky-700">Contact</h1></Link>
           <Link href='/login'>
           <h1 className="text-white p-2 hover:bg-sky-700">Login</h1></Link>
