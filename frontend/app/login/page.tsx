@@ -30,7 +30,7 @@ export default function LoginPage() {
 
         if (response.ok) {
             // Redirect to the desired page after successful login
-            router.push('/page');  // Adjust the route to point to your desired page
+            router.push('/orderDetails');  // Adjust the route to point to your desired page
         } else {
             setError(data.message || 'Login failed');
         }

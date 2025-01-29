@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Cookies from "js-cookie";
 
 export default function SignupPage() {
     const [name, setName] = useState("");
@@ -23,42 +24,25 @@ export default function SignupPage() {
         setLoading(true);
         setError("");
 
-        // Check if deliveryPartner-related fields are provided
         if (userType === "deliveryPartner" && (!vehicleType || !licenseNumber)) {
             setLoading(false);
-            setError("Vehicle Type and License Number are required for delivery partner.");
+            setError("Vehicle Type and License Number are required for delivery partners.");
             return;
         }
 
-        // Prepare the payload based on user type
-        const payload =
-            userType === "deliveryPartner"
-                ? {
-                    name,
-                    email,
-                    password,
-                    phone,
-                    vehicleType,
-                    licenseNumber,
-                    // Set deliveryArea to null if not provided
-                    deliveryArea: deliveryArea.trim() === "" ? null : deliveryArea
-                }
-                : { name, email, password };
+        const payload = userType === "deliveryPartner"
+            ? { name, email, password, phone, vehicleType, licenseNumber, deliveryArea: deliveryArea.trim() || null }
+            : { name, email, password };
 
-        console.log("Payload to send:", payload); // Inspect the payload
-        const apiUrl =
-            userType === "deliveryPartner"
-                ? "http://localhost:5001/api/deliveryBoys/signup"
-                : "http://localhost:5001/api/customers/signup";
-
-        console.log("API URL to hit:", apiUrl); // Inspect the API URL
+        const apiUrl = userType === "deliveryPartner"
+            ? "http://localhost:5001/api/deliveryBoys/signup"
+            : "http://localhost:5001/api/customers/signup";
 
         try {
             const response = await fetch(apiUrl, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
+                credentials: "include", // Ensures cookies are included in requests
                 body: JSON.stringify(payload),
             });
 
@@ -67,18 +51,24 @@ export default function SignupPage() {
 
             if (response.ok) {
                 setResponseOk(true);
-                // Redirect to appropriate page after signup
+
+                // Store JWT token in HttpOnly cookies
+                if (data.token) {
+                    Cookies.set("jwt", data.token, { expires: 1, secure: true });
+                }
+
+                // Redirect after signup
                 if (userType === "deliveryPartner") {
-                    router.push('/deliveryBoy'); // Adjust route for delivery partner
+                    router.push("/deliveryBoy");
                 } else {
-                    router.push("/"); // Adjust route for customer
+                    router.push("/");
                 }
             } else {
                 setError(data.message || "Something went wrong!");
             }
         } catch (error) {
             setLoading(false);
-            console.error("Error during the API request:", error);
+            console.error("API request error:", error);
             setError("Network error or server not responding.");
         }
     };

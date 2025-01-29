@@ -1,5 +1,6 @@
 const Customer = require('../models/Customer'); // Assuming this is the correct path
 const bcrypt = require('bcryptjs'); // For password hashing
+const jwt = require('jsonwebtoken'); // For JWT authentication
 
 // Create a new customer (signup)
 exports.createUser = async (req, res) => {
@@ -26,9 +27,24 @@ exports.createUser = async (req, res) => {
         // Save customer to the database
         await customer.save();
 
+        // Generate JWT Token
+        const token = jwt.sign(
+            { id: customer._id, email: customer.email },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+
+        // Set JWT as an HTTP-only cookie
+        res.cookie("jwt", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+            maxAge: 3600000, // 1 hour
+        });
+
         // Return the customer details without the password
         const { password: _, ...customerWithoutPassword } = customer.toObject();
-        res.status(201).json(customerWithoutPassword);
+        res.status(201).json({ customer: customerWithoutPassword, token });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -70,9 +86,24 @@ exports.loginUser = async (req, res) => {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
 
+        // Generate JWT Token
+        const token = jwt.sign(
+            { id: customer._id, email: customer.email },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+
+        // Set JWT as an HTTP-only cookie
+        res.cookie("jwt", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+            maxAge: 3600000, // 1 hour
+        });
+
         // Return the customer details without the password
         const { password: _, ...customerWithoutPassword } = customer.toObject();
-        res.json(customerWithoutPassword); // Send the customer info
+        res.json({ customer: customerWithoutPassword, token });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
